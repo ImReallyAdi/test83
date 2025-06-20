@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Chat</title>
+  <style>
+    body { font-family: sans-serif; background: #f5f5f5; padding: 20px; }
+    #chatBox { max-width: 500px; margin: auto; background: white; padding: 10px; border-radius: 8px; }
+    #messages { height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    .msg { margin: 5px 0; }
+    .user { color: blue; }
+    .bot { color: green; }
+  </style>
+</head>
+<body>
+  <div id="chatBox">
+    <div id="messages"></div>
+    <input type="text" id="input" placeholder="Type a message..." style="width: 80%;">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById('input');
+      const messages = document.getElementById('messages');
+      const userMessage = input.value.trim();
+
+      if (!userMessage) return;
+
+      // Show user message
+      const userMsgElem = document.createElement('div');
+      userMsgElem.className = 'msg user';
+      userMsgElem.textContent = 'You: ' + userMessage;
+      messages.appendChild(userMsgElem);
+
+      // Clear input
+      input.value = '';
+
+      try {
+        const response = await fetch(`https://ab64ee25-bf64-4785-8c9a-cd04b33e363d-00-2d98djq12duq6.worf.replit.dev:8000/api/chat/${encodeURIComponent(userMessage)}`);
+        const data = await response.text(); // assuming plain text, change to `.json()` if it's JSON
+
+        const botMsgElem = document.createElement('div');
+        botMsgElem.className = 'msg bot';
+        botMsgElem.textContent = 'Bot: ' + data;
+        messages.appendChild(botMsgElem);
+      } catch (err) {
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'msg bot';
+        errorMsg.textContent = 'Bot: Error contacting server.';
+        messages.appendChild(errorMsg);
+      }
+
+      // Auto-scroll
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    // Optional: send message on Enter key
+    document.getElementById('input').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') sendMessage();
+    });
+  </script>
+</body>
+</html>
